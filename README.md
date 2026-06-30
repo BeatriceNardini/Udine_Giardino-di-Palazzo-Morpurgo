@@ -1,178 +1,211 @@
-# 🌿 Giardino di Palazzo Morpurgo — App pilota (v2)
+# 🌿 Giardino di Palazzo Morpurgo — App pilota (v3)
 
-Web app cartocentrica per la fruizione divulgativa del Giardino di Palazzo Morpurgo a Udine, costruita a costo zero con Leaflet + OpenStreetMap + GitHub Pages.
+Web app cartocentrica per la fruizione divulgativa del Giardino di Palazzo Morpurgo a Udine.
+Tecnologie: Leaflet + OpenStreetMap + GitHub Pages. **Costo: zero.**
 
-**Versione 2**: ora i dati cartografici (perimetro + oggetti) sono caricati direttamente dai tuoi GeoJSON esportati da QGIS. Quando aggiungi/modifichi punti nel GIS, basta riesportare e sovrascrivere i file: l'app si aggiorna sola.
+---
+
+## 🆕 Novità della v3
+
+| Caratteristica | Come funziona |
+|---|---|
+| **Pannello informativo** | Premi ⓘ in alto a destra per aprire descrizione complessiva e storia del giardino |
+| **Galleria foto generale** | Sezione del pannello informativo con foto del giardino |
+| **Galleria foto per oggetto** | Ogni oggetto può avere più foto, mostrate nella scheda completa |
+| **Rinumerazione automatica dei marker** | I COD_ID catalografici (es. "5") diventano numeri progressivi a video (1, 2, 3...) |
+| **Sottotitolo in corsivo grassetto** | Sotto il titolo dell'oggetto |
+| **Mappa sempre visibile** | Anche zoomando oltre il livello dei tile OSM (max nativo 19) la mappa non sparisce |
+| **Testi divulgativi separati** | Modificabili senza toccare il GIS (file `descrizioni.json` + `giardino.json`) |
 
 ---
 
 ## 📁 STRUTTURA DEL PROGETTO
 
 ```
-morpurgo-v2/
-├── index.html              ← La pagina web
-├── README.md               ← Questo file
+morpurgo-v3/
+├── index.html
+├── README.md
 ├── data/
-│   ├── perimetro.geojson   ← Poligono del giardino (da QGIS)
-│   └── oggetti.geojson     ← Punti degli oggetti (da QGIS)
+│   ├── perimetro.geojson    ← Poligono del giardino (da QGIS)
+│   ├── oggetti.geojson      ← Punti degli oggetti (da QGIS)
+│   ├── descrizioni.json     ← Testi divulgativi degli oggetti
+│   └── giardino.json        ← Descrizione + storia + galleria del giardino
 └── foto/
-    ├── 1.jpg               ← Loggia (numero = COD_ID)
-    ├── 5.jpg               ← Ninfa
-    ├── A.jpg               ← Aiuole formali
-    └── ...
+    ├── giardino/            ← Foto generali del giardino
+    └── oggetti/             ← Foto dei singoli elementi
 ```
 
 ---
 
-## 🚀 COME USARLO
+## 🔧 COME L'APP USA I TUOI DATI
 
-### **PASSO 1 — Esporta da QGIS (lo hai già fatto ✓)**
+### 1. Dati cartografici (dal GIS)
 
-Il sistema attuale legge automaticamente:
-- `data/perimetro.geojson` per il poligono del giardino
-- `data/oggetti.geojson` per i punti degli oggetti
+I file `perimetro.geojson` e `oggetti.geojson` sono **gli esportati dal tuo QGIS**.
+Quando aggiungi/sposti un punto, **riesporti il GeoJSON** e l'app si aggiorna sola.
 
-Devono essere in **EPSG:4326 / WGS84** (i tuoi file attuali sono in `urn:ogc:def:crs:OGC:1.3:CRS84` che è equivalente — perfetto).
+Campi attesi nel GeoJSON degli oggetti:
+- `COD_ID`: codice catalografico (può essere numero o lettera)
+- `NOME`: nome catalografico
+- `LIV1`, `LIV2`, `LIV3`: gerarchia ICCD
+- `DESC_BREVE`: descrizione breve (fallback se manca in descrizioni.json)
 
-### **PASSO 2 — Prepara le foto**
+### 2. Testi divulgativi (file separati)
 
-Il file `index.html` cerca le immagini nella cartella `foto/` con nome `{COD_ID}.jpg`. Quindi:
+**`data/descrizioni.json`** — per gli oggetti.
+La chiave di ogni voce è il **COD_ID** dell'oggetto.
 
-| COD_ID nel GeoJSON | Nome file richiesto |
-|---|---|
-| `1` (Loggia) | `foto/1.jpg` |
-| `5` (Ninfa) | `foto/5.jpg` |
-| `A` (Aiuole) | `foto/A.jpg` |
+```json
+"5": {
+  "titolo": "Scultura \"Ninfa\"",
+  "sottotitolo": "Una Ninfa al centro dell'acqua",
+  "breve": "Testo breve per il pop-up sulla mappa (1-2 frasi).",
+  "completa": "Testo lungo per la scheda 'Leggi tutto'.",
+  "galleria": [
+    { "file": "ninfa-attuale.jpg", "didascalia": "La Ninfa oggi" },
+    { "file": "ninfa-1954.jpg", "didascalia": "Foto storica del 1954" }
+  ]
+}
+```
 
-Dimensione consigliata: 800×500 pixel, peso < 200 KB. Usa [squoosh.app](https://squoosh.app) per ottimizzarle.
+**`data/giardino.json`** — per il pannello informativo a scomparsa.
 
-Se manca una foto, l'app non crasha: nasconde semplicemente l'immagine.
+```json
+{
+  "descrizione_completa": "Testo che descrive il giardino oggi...",
+  "storia": "Testo che racconta la storia del giardino...",
+  "galleria": [
+    { "file": "vista-generale.jpg", "didascalia": "Vista d'insieme" }
+  ]
+}
+```
 
-### **PASSO 3 — Testa in locale (con un piccolo trucco)**
+### 3. Foto
 
-⚠️ **Importante**: questa versione **non funziona aprendo `index.html` con doppio clic** perché il browser blocca il caricamento dei GeoJSON locali per motivi di sicurezza (CORS).
+- **Foto del giardino in generale** → `foto/giardino/`
+- **Foto degli oggetti** → `foto/oggetti/`
 
-Hai 2 opzioni:
+Vedi i file `LEGGIMI.txt` nelle due cartelle per dettagli su nomi e formati.
 
-**Opzione A — Server locale con Python (raccomandata)**
+---
 
-Apri il terminale nella cartella del progetto e lancia:
+## 🔢 RINUMERAZIONE AUTOMATICA — come funziona
+
+Nel GIS i tuoi oggetti hanno COD_ID catalografici (es. `1`, `5`, `12`, `A`, `B`).
+Sono **numeri ICCD** che corrispondono alla scheda PG ufficiale.
+
+Sulla mappa l'utente vede invece una **numerazione pulita e progressiva**:
+- Gli oggetti puntuali (COD_ID numerico) vengono **rinumerati 1, 2, 3...** in ordine crescente
+- Gli ambiti (COD_ID alfabetico) mantengono la lettera (A, B, C...)
+
+**Esempio:** se nel GIS hai punti con COD_ID `1`, `5`, `12`, sulla mappa l'utente vede `1`, `2`, `3`.
+
+I tuoi codici catalografici restano nel GeoJSON, ma non sono mai visibili al pubblico.
+
+---
+
+## 🗺️ MAPPA SEMPRE VISIBILE — come abbiamo risolto
+
+OpenStreetMap fornisce le tile (i quadrati che compongono la mappa) fino allo zoom 19.
+Oltre quel livello, le tile non esistono e la mappa sparirebbe.
+
+L'app v3 dice a Leaflet: *"se l'utente zooma oltre il 19, prendi la tile del 19 e ingrandiscila tu"*.
+Risultato: la mappa diventa un po' sfocata ai zoom massimi (è inevitabile, le tile sono raster) ma **rimane sempre visibile**.
+
+Lo zoom massimo consentito è 22.
+
+---
+
+## 🚀 PROCEDURA DI TEST E PUBBLICAZIONE
+
+### Test in locale
+
+⚠️ Apertura con doppio clic **non funziona** (CORS blocca i JSON locali).
+
+Apri terminale nella cartella del progetto:
 
 ```bash
 python3 -m http.server 8000
 ```
 
-Poi apri il browser su `http://localhost:8000`. Funziona tutto.
+Poi browser su `http://localhost:8000`.
 
-Per fermare: `Ctrl+C` nel terminale.
+### Pubblicazione su GitHub Pages
 
-**Opzione B — Estensione VS Code "Live Server"**
-
-In VS Code installa l'estensione **Live Server** di Ritwick Dey. Poi clicca col destro su `index.html` → "Open with Live Server". Si apre il browser e tutto funziona.
-
-### **PASSO 4 — Pubblica su GitHub Pages**
-
-Una volta online, il problema CORS non esiste più. Procedura uguale a prima:
-
-1. Crea account su [github.com](https://github.com)
-2. **+** in alto → **New repository** → nome `morpurgo` → Public → Create
-3. Nel repo clicca **Add file** → **Upload files**
-4. Trascina dentro: `index.html`, `README.md`, e le cartelle `data/` e `foto/` (con il loro contenuto)
-5. **Commit changes**
-6. **Settings** → **Pages** → Source: **Deploy from a branch** → branch `main` → cartella `/(root)` → Save
-7. Aspetta 1-2 minuti, vai su **Settings → Pages**: trovi l'URL pubblico tipo `https://tuonome.github.io/morpurgo/`
-
-Quel link è la tua app, accessibile da qualsiasi smartphone con browser.
+1. Account su [github.com](https://github.com) → New repository → `morpurgo` → Public
+2. Upload di tutti i file
+3. Settings → Pages → Source: Deploy from branch → main → / (root) → Save
+4. Aspetta 1-2 minuti → URL pubblico tipo `https://tuonome.github.io/morpurgo/`
 
 ---
 
-## 🔧 COME L'APP USA I TUOI ATTRIBUTI
+## ✏️ COME MODIFICARE I TESTI
 
-Il GeoJSON degli oggetti ha questi campi (li hai impostati tu in QGIS):
+**Caso 1 — Cambi il nome catalografico, sposti un punto, aggiungi un oggetto**:
+- Lavori in QGIS
+- Riesporti `oggetti.geojson`
+- Sovrascrivi il file
+- Commit + push
 
-| Campo | Come viene usato nell'app |
-|---|---|
-| `NOME` | Titolo della scheda |
-| `COD_ID` | Numero/lettera sul marker; nome del file foto |
-| `LIV1` | Categoria principale (etichetta in alto, maiuscoletto) |
-| `LIV2` | Categoria intermedia (riga in corsivo) |
-| `LIV3` | Sottocategoria (continua la riga di LIV2) |
-| `DESC_BREVE` | Testo della scheda (usato se manca descrizione estesa) |
-| `SITO`, `COMUNE`, `NOTE` | Non mostrati ma presenti |
+**Caso 2 — Limi una descrizione divulgativa, cambi un sottotitolo, aggiungi una foto a un oggetto**:
+- Apri `data/descrizioni.json`
+- Modifichi
+- Commit + push
 
-**Marker numerici vs lettera**: l'app distingue automaticamente. Numeri → verde scuro (elementi puntuali). Lettere → verde chiaro (ambiti / spazi verdi). Puoi cambiare i colori nel CSS in cima al file.
+**Caso 3 — Cambi la descrizione complessiva del giardino o la storia**:
+- Apri `data/giardino.json`
+- Modifichi
+- Commit + push
 
----
-
-## 📝 DESCRIZIONI ESTESE — DOVE METTERLE
-
-Il problema noto degli shapefile è il **limite di 254 caratteri** per campo testo, che tronca le descrizioni. La soluzione attuale è:
-
-- I tuoi `DESC_BREVE` nel GeoJSON restano come backup
-- Le **descrizioni complete** stanno dentro `index.html`, nella sezione `const descrizioniEstese = {...}` (cerca quel testo nel file)
-- La chiave è il `COD_ID` dell'oggetto: `"1"` per la loggia, `"5"` per la Ninfa, `"A"` per le aiuole
-
-Per **aggiungere** descrizioni estese a nuovi oggetti, basta aggiungere una riga:
-
-```javascript
-const descrizioniEstese = {
-  "1": `Una loggia per chiudere il giardino ...`,
-  "5": `Una Ninfa al centro dell'acqua ...`,
-  "A": `Aiuole formali — perché formali, oggi ...`,
-  "3": `LA TUA NUOVA DESCRIZIONE QUI`  // ← nuova
-};
-```
-
-I backtick (` ` `) permettono di scrivere su più righe con interruzioni naturali.
-
-**Alternativa più strutturata (futuro)**: spostare le descrizioni in un file `descrizioni.json` esterno, così le modifichi senza toccare il codice. Te lo posso preparare quando vuoi.
+In tutti i casi, dopo il push: 1-2 minuti e il sito pubblico è aggiornato.
 
 ---
 
-## 🐛 PROBLEMI NOTI DEI TUOI GEOJSON ATTUALI
+## 📷 GESTIONE FOTO
 
-Una piccola pulizia consigliata per la prossima esportazione da QGIS:
+### Foto del giardino in generale
+Cartella: `foto/giardino/`
+Dichiarate in: `data/giardino.json` → sezione `galleria`
 
-**1. Il campo `FOTO` contiene il codice + nome invece del nome file**
+### Foto dei singoli oggetti
+Cartella: `foto/oggetti/`
+Dichiarate in: `data/descrizioni.json` → sezione `galleria` di ogni oggetto
 
-Ora hai: `"FOTO": "5, Scultura \"Ninfa\""`
+### Cosa appare dove
+- **Sulla mappa (scheda pop-up)**: la PRIMA foto della galleria dell'oggetto
+- **Nella modale "Leggi tutto"**: tutte le foto, con didascalia
+- **Nel pannello ⓘ del giardino**: le foto generali, in griglia
 
-Sarebbe meglio: `"FOTO": "5.jpg"` (oppure lascia il campo vuoto e l'app prende `COD_ID + .jpg`)
+### Foto storiche
+Puoi mescolare foto attuali e storiche. Indica la fonte nella didascalia.
+**Importante**: per le foto dei Civici Musei di Udine o altre istituzioni serve permesso scritto.
 
-L'app v2 gestisce comunque entrambi i casi: se `FOTO` contiene una virgola, usa `COD_ID + .jpg` come fallback.
-
-**2. Il valore `COMUNE` è "Udine" negli oggetti ma "UDINE" nel perimetro**
-
-Non è un problema per l'app ma è bene uniformare in QGIS.
-
-**3. Manca il campo `id` valorizzato**
-
-Adesso è `null`. Per il pilota va bene, ma quando crescerai converrebbe valorizzarlo (es. progressivo univoco) per gestione futura.
-
----
-
-## ⚠️ LIMITI ATTUALI
-
-- **GPS impreciso al Morpurgo**: 5-15 m, in centro storico anche peggio. Il pallino blu serve a orientarti, non per "scattare" la scheda dell'oggetto vicino.
-- **Niente offline**: serve connessione.
-- **Niente multilingua**: solo italiano.
-- **Niente analytics**: non sai quanti visitatori hai. Quando vorrai, aggiungiamo Plausible o Umami (gratis, GDPR-friendly).
+### Formati consigliati
+- JPG, sotto 250 KB
+- Foto copertina: 800×500 px
+- Foto galleria: 600×400 px
+- Foto del giardino: 1000×700 px
+- Strumenti gratuiti: [squoosh.app](https://squoosh.app), ImageOptim
 
 ---
 
 ## 💡 PROSSIMI PASSI
 
-Ti propongo, in ordine di priorità:
-
-1. **Aggiungi gli altri oggetti chiave del giardino**: peschiera, cancellata, siepe di tasso, eventuale parterre opposto. In QGIS digitalizzi 3-4 punti nuovi, riesporti.
-2. **Carica 3 foto reali** (anche scattate al volo col telefono) per Loggia, Ninfa, Aiuole.
-3. **Pubblica su GitHub Pages** e prova sul posto.
-4. **Aggiungi audio** per i 3 oggetti (registrati con il telefono, 45 secondi a brano).
-5. **Replica per un secondo giardino** (es. Giardino del Torso) per dimostrare la scalabilità.
-6. **Presenta al Comune di Udine** con il link pubblico già funzionante.
+1. Aggiungi gli altri oggetti del giardino in QGIS (peschiera, cancellata, siepe di tasso, ecc.)
+2. Scatta o procura le foto e mettile nelle cartelle giuste
+3. Compila descrizioni.json per ogni nuovo oggetto
+4. Pubblica su GitHub Pages
+5. Prova sul posto
+6. Quando funziona: presenta al Comune di Udine
 
 ---
 
-## 📞 SUPPORTO
+## 🛠️ ESTENSIONI POSSIBILI IN FUTURO
 
-Per estensioni avanzate (audio, multilingua, AR, dashboard di gestione, sistema di analytics) valuta di partecipare a bandi regionali di digitalizzazione del patrimonio culturale.
+- Audio per ogni oggetto (registrazioni 45-60 secondi)
+- Multilingua (italiano, inglese, sloveno, tedesco)
+- Modalità "percorso guidato" con sequenza ordinata
+- Caccia al tesoro botanica per famiglie
+- Analytics privacy-friendly (Plausible, Umami)
+- Lightbox per le foto a schermo intero
+- Estensione ad altri giardini di Udine

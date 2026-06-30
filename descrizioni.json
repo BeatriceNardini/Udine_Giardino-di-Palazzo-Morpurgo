@@ -1,0 +1,37 @@
+{
+  "_commento": "File delle descrizioni divulgative degli oggetti. La chiave di ogni voce è il COD_ID dell'oggetto nel GeoJSON. Modifica liberamente i testi: l'app li ricarica a ogni apertura della pagina. Campi: titolo (in alto), sottotitolo (in corsivo grassetto sotto il titolo), breve (scheda pop-up), completa (Leggi tutto), galleria (lista immagini con didascalia). La prima immagine della galleria viene mostrata sulla scheda pop-up. Le foto vanno in foto/oggetti/.",
+
+  "1": {
+    "titolo": "Loggia",
+    "sottotitolo": "Una loggia per chiudere il giardino",
+    "breve": "Costruita nel Settecento, questa loggia chiude visivamente il giardino e lo collega alla corte d'onore del palazzo. È attribuita all'architetto Luca Andrioli senior, attivo in Friuli accanto a grandi maestri come Giorgio Massari.",
+    "completa": "Quando alla fine dell'Ottocento la famiglia Morpurgo arrivò qui, questa loggia esisteva da quasi un secolo, ma era ancora chiusa da un muro che la separava dal giardino retrostante. Furono proprio i Morpurgo, tra il 1907 e il 1918, a demolire quel muro e a far diventare la loggia il \"ponte\" tra il palazzo e il nuovo giardino.\n\nL'architetto a cui si deve il disegno è probabilmente Luca Andrioli senior, attivo in Friuli nella prima metà del Settecento. Nel suo lavoro si riconosce la mano di chi aveva imparato accanto a Giorgio Massari, uno dei più importanti architetti veneziani dell'epoca.\n\nAlza lo sguardo: le otto statue sulla balaustra sono le Quattro Stagioni. Le scolpì nel 1782 il tagliapietra Mattiussi, e ognuna è accompagnata da una scena di lavoro contadino tipica di quella stagione: la semina, la mietitura, la vendemmia, la potatura. Un piccolo calendario di pietra sospeso sopra il giardino.",
+    "galleria": [
+      { "file": "loggia-attuale.jpg", "didascalia": "La loggia oggi" },
+      { "file": "loggia-statue.jpg", "didascalia": "Particolare delle statue delle Quattro Stagioni (Mattiussi, 1782)" },
+      { "file": "loggia-1906.jpg", "didascalia": "La loggia ancora addossata al muro di recinzione (1906)" }
+    ]
+  },
+
+  "5": {
+    "titolo": "Scultura \"Ninfa\"",
+    "sottotitolo": "Una Ninfa al centro della peschiera",
+    "breve": "La fanciulla che riposa al centro della peschiera è una Ninfa, scolpita per la prima volta a fine Ottocento dall'artista gemonese Leonardo Liso (1855-1922). Quella che vedi non è l'originale, ma una copia: l'originale apparteneva al giardino di un secolo fa.",
+    "completa": "Nelle mitologie antiche le Ninfe erano spiriti femminili dell'acqua, dei boschi, delle montagne. Erano simbolo della natura selvaggia ma anche della grazia. È esattamente quello che cercava di evocare lo scultore gemonese Leonardo Liso quando, a fine Ottocento, scolpì la prima \"Ninfa\" che sarebbe stata posta proprio qui, nel cuore del giardino voluto da Elio Morpurgo.\n\nLiso (1855-1922) era un nome importante della scultura friulana del suo tempo. La sua Ninfa originale era in pietra artificiale — un materiale all'epoca molto moderno, simile a un cemento decorativo — e rappresentava una giovane donna nuda in posa rilassata, come adagiata sull'acqua.\n\nL'originale è andato perso nel corso del Novecento. Quella che vedi è una copia, posizionata durante il restauro del giardino del 2006-2007.",
+    "galleria": [
+      { "file": "ninfa-attuale.jpg", "didascalia": "La copia della \"Ninfa\" oggi" },
+      { "file": "ninfa-1954.jpg", "didascalia": "La fontana originale con la \"Ninfa\" di Liso (foto 1954)" }
+    ]
+  },
+
+  "A": {
+    "titolo": "Aiuole formali",
+    "sottotitolo": "Perché formali, oggi",
+    "breve": "Le aiuole geometriche che vedi oggi sono comparse tra il 2006 e il 2007. Prima il giardino era informale, all'inglese, con alberi sparsi e una fontana al centro. Fu trasformato in giardino formale per diventare un passaggio pedonale ordinato verso la Casa Cavazzini.",
+    "completa": "Per quasi tutto il Novecento il giardino Morpurgo aveva un'altra anima. Era un giardino informale, romantico, di gusto inglese: aiuole erbose dal profilo irregolare, percorse da vialetti ghiaiosi, alberi sparsi in apparente disordine — soprattutto conifere — e al centro una fontana ornata dalla \"Ninfa\" di Leonardo Liso. Era così che lo aveva pensato Elio Morpurgo tra il 1907 e il 1918, seguendo la moda ottocentesca del giardino paesaggistico.\n\nQuello che vedi oggi è il suo esatto contrario: due grandi aiuole quadrate fronteggiano la loggia, una delle quali bordata da una siepe geometrica e ordinata. È un giardino formale, all'italiana. Cosa è successo nel mezzo?\n\nLa trasformazione è del 2006-2007. Il Comune di Udine decise di trasformare il giardino — fino ad allora spazio raccolto e nascosto — in un collegamento pedonale tra Piazzetta Belloni, Piazza Duomo e via Savorgnana, dove stava nascendo il nuovo Museo di Arte Contemporanea (Casa Cavazzini). Il giardino doveva diventare una piazza verde di passaggio, non più un'oasi di quiete privata.\n\nC'è anche un richiamo storico più antico. Prima del 1906, su questo stesso terreno sussistevano gli orti della famiglia Sarmede, registrati dal perito Spinelli nel 1704 come un impianto a quadranti solcato da un vialetto a crociera. Lo schema attuale, in fondo, ne ridisegna idealmente la memoria.\n\nIl prezzo da pagare è stato alto: durante i lavori l'intero impianto vegetale storico fu demolito, e quello che vedi oggi è frutto di un progetto contemporaneo e non c'è più nemmeno una pianta di quelle che videro crescere il giardino di Elio Morpurgo.",
+    "galleria": [
+      { "file": "aiuole-attuali.jpg", "didascalia": "Le aiuole formali del 2006-2007" },
+      { "file": "aiuole-1918.jpg", "didascalia": "L'impianto informale primo-novecentesco (foto aerea 1918)" }
+    ]
+  }
+}

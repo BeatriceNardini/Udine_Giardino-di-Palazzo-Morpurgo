@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Giardino di Palazzo Morpurgo - Udine</title>
 
-  <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
   <style>
@@ -17,22 +16,175 @@
       color: #2a2a2a;
     }
 
+    /* ========================================
+       INTESTAZIONE + PANNELLO INFORMATIVO
+       ======================================== */
+
     header {
       background: #3a4a3a;
       color: white;
       padding: 12px 16px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+      position: relative;
+      z-index: 500;
     }
 
-    header h1 { font-size: 18px; font-weight: 600; }
+    header h1 {
+      font-size: 18px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    header h1 button {
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.3);
+      color: white;
+      border-radius: 6px;
+      width: 30px;
+      height: 30px;
+      font-size: 18px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.2s;
+    }
+
+    header h1 button:active { background: rgba(255,255,255,0.3); }
+
     header p { font-size: 12px; opacity: 0.85; margin-top: 2px; }
+
+    /* Pannello informativo a scomparsa */
+    .pannello-giardino {
+      background: white;
+      border-bottom: 1px solid #ddd;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.35s ease-out;
+      position: relative;
+      z-index: 400;
+    }
+
+    .pannello-giardino.aperto {
+      max-height: 70vh;
+      overflow-y: auto;
+    }
+
+    .pannello-giardino .interno {
+      padding: 18px 18px 24px;
+    }
+
+    .pannello-giardino .sezione {
+      margin-bottom: 16px;
+    }
+
+    .pannello-giardino .sezione:last-child { margin-bottom: 0; }
+
+    .pannello-giardino .titolo-sezione {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      padding: 12px 0;
+      border-bottom: 1px solid #eee;
+      user-select: none;
+    }
+
+    .pannello-giardino .titolo-sezione h3 {
+      font-size: 14px;
+      color: #3a4a3a;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 600;
+    }
+
+    .pannello-giardino .titolo-sezione .freccia {
+      font-size: 12px;
+      color: #888;
+      transition: transform 0.2s;
+    }
+
+    .pannello-giardino .sezione.aperta .titolo-sezione .freccia {
+      transform: rotate(180deg);
+    }
+
+    .pannello-giardino .contenuto-sezione {
+      display: none;
+      padding-top: 10px;
+      font-size: 14px;
+      line-height: 1.6;
+      color: #444;
+      white-space: pre-line;
+    }
+
+    .pannello-giardino .sezione.aperta .contenuto-sezione {
+      display: block;
+    }
+
+    /* Galleria foto generali del giardino */
+    .galleria-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .galleria-item {
+      background: #f4f1ea;
+      border-radius: 6px;
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    .galleria-item img {
+      width: 100%;
+      height: 110px;
+      object-fit: cover;
+      display: block;
+      background: #e0e0e0;
+    }
+
+    .galleria-item .didascalia {
+      padding: 6px 8px;
+      font-size: 11px;
+      color: #666;
+      line-height: 1.3;
+    }
+
+    /* ========================================
+       MAPPA
+       ======================================== */
 
     #map {
       width: 100%;
       height: calc(100vh - 60px);
     }
 
-    /* Pop-up della scheda */
+    /* ========================================
+       MARKER NUMERATI
+       ======================================== */
+
+    .marker-id {
+      background: #3a4a3a;
+      color: white;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      border: 3px solid white;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+      font-size: 14px;
+    }
+
+    .marker-spazio { background: #6a8a4a; }
+
+    /* ========================================
+       POP-UP DELLE SCHEDE OGGETTO
+       ======================================== */
+
     .leaflet-popup-content-wrapper {
       border-radius: 8px;
       padding: 0;
@@ -54,12 +206,6 @@
 
     .scheda .contenuto { padding: 14px; }
 
-    .scheda h3 {
-      font-size: 16px;
-      color: #3a4a3a;
-      margin-bottom: 6px;
-    }
-
     .scheda .tipo {
       font-size: 10px;
       text-transform: uppercase;
@@ -68,42 +214,134 @@
       margin-bottom: 6px;
     }
 
-    .scheda .liv {
-      font-size: 11px;
-      color: #6a7a6a;
+    .scheda h3 {
+      font-size: 16px;
+      color: #3a4a3a;
+      margin-bottom: 4px;
+    }
+
+    .scheda .sottotitolo {
+      font-size: 14px;
+      font-weight: 700;
       font-style: italic;
-      margin-bottom: 8px;
+      color: #5a6a5a;
+      margin-bottom: 10px;
     }
 
     .scheda p {
       font-size: 13px;
       line-height: 1.5;
       color: #444;
-      white-space: pre-line; /* per rispettare i \n nelle descrizioni */
+      white-space: pre-line;
     }
 
-    /* Marker numerati / lettera */
-    .marker-id {
-      background: #3a4a3a;
-      color: white;
-      border-radius: 50%;
-      width: 32px;
-      height: 32px;
-      display: flex;
+    .scheda .leggi-tutto {
+      display: inline-block;
+      margin-top: 10px;
+      font-size: 12px;
+      color: #3a4a3a;
+      text-decoration: underline;
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 0;
+      font-family: inherit;
+    }
+
+    /* ========================================
+       MODALE PER SCHEDA COMPLETA
+       ======================================== */
+
+    .modale-bg {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.6);
+      z-index: 2000;
+      display: none;
       align-items: center;
       justify-content: center;
-      font-weight: bold;
-      border: 3px solid white;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+      padding: 20px;
+    }
+
+    .modale-bg.aperta { display: flex; }
+
+    .modale {
+      background: white;
+      border-radius: 12px;
+      max-width: 600px;
+      max-height: 85vh;
+      width: 100%;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    .modale-img {
+      width: 100%;
+      height: 220px;
+      object-fit: cover;
+      background: #e0e0e0;
+      flex-shrink: 0;
+    }
+
+    .modale-corpo {
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    .modale-corpo h2 {
+      color: #3a4a3a;
+      margin-bottom: 4px;
+      font-size: 22px;
+    }
+
+    .modale-corpo .sottotitolo {
+      font-size: 16px;
+      font-weight: 700;
+      font-style: italic;
+      color: #5a6a5a;
+      margin-bottom: 16px;
+    }
+
+    .modale-corpo .meta {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #888;
+      margin-bottom: 4px;
+    }
+
+    .modale-corpo p {
       font-size: 14px;
+      line-height: 1.7;
+      color: #333;
+      white-space: pre-line;
     }
 
-    /* Marker per gli spazi verdi (lettere) - colore diverso */
-    .marker-spazio {
-      background: #6a8a4a;
+    .modale-corpo .galleria-grid {
+      margin-top: 20px;
     }
 
-    /* Bottone geolocalizzazione */
+    .modale-chiudi {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: white;
+      border: none;
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
+      font-size: 22px;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      z-index: 10;
+    }
+
+    /* ========================================
+       BOTTONE GEOLOCALIZZAZIONE E BANNER
+       ======================================== */
+
     .geo-btn {
       position: absolute;
       bottom: 20px;
@@ -121,7 +359,6 @@
 
     .geo-btn:active { background: #ddd; }
 
-    /* Pannello informativo iniziale */
     .info-iniziale {
       position: absolute;
       bottom: 80px;
@@ -145,7 +382,6 @@
       color: #888;
     }
 
-    /* Banner errore caricamento */
     .errore {
       position: absolute;
       top: 80px;
@@ -163,179 +399,351 @@
 
 <body>
   <header>
-    <h1>🌿 Giardino di Palazzo Morpurgo</h1>
-    <p>Udine · Tocca i punti per scoprire la storia</p>
+    <h1>
+      <span>🌿 Giardino di Palazzo Morpurgo</span>
+      <button id="toggleInfo" title="Informazioni sul giardino" onclick="togglePannelloGiardino()">ⓘ</button>
+    </h1>
+    <p>Udine · Tocca i punti per scoprire il giardino</p>
   </header>
+
+  <!-- Pannello informativo a scomparsa -->
+  <div class="pannello-giardino" id="pannelloGiardino">
+    <div class="interno" id="contenutoPannello">
+      <!-- Popolato dinamicamente da giardino.json -->
+    </div>
+  </div>
 
   <div id="map"></div>
 
   <div class="info-iniziale" id="infoIniziale">
     <span class="chiudi" onclick="document.getElementById('infoIniziale').style.display='none'">×</span>
     <strong>Benvenuto!</strong><br />
-    Tocca i marker sulla mappa per leggere le schede. I numeri sono elementi puntuali, le lettere sono gli ambiti del giardino. Premi 📍 in basso a destra per vedere la tua posizione.
+    Tocca i marker sulla mappa per scoprire gli elementi del giardino. Premi ⓘ in alto a destra per leggere la descrizione complessiva e la storia. Premi 📍 in basso a destra per vedere la tua posizione.
   </div>
 
   <button class="geo-btn" onclick="trovaPosizione()" title="Mostra la mia posizione">📍</button>
 
-  <!-- Leaflet JS -->
+  <!-- Modale per scheda completa dell'oggetto -->
+  <div class="modale-bg" id="modaleBg" onclick="chiudiModaleSeFuori(event)">
+    <div class="modale" onclick="event.stopPropagation()">
+      <button class="modale-chiudi" onclick="chiudiModale()">×</button>
+      <img class="modale-img" id="modaleImg" alt="" onerror="this.style.display='none'" />
+      <div class="modale-corpo">
+        <div class="meta" id="modaleMeta"></div>
+        <h2 id="modaleTitolo"></h2>
+        <div class="sottotitolo" id="modaleSottotitolo"></div>
+        <p id="modaleTesto"></p>
+        <div class="galleria-grid" id="modaleGalleria"></div>
+      </div>
+    </div>
+  </div>
+
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
   <script>
     // ====================================================
     // INIZIALIZZAZIONE MAPPA
     // ====================================================
+    // Importante: maxZoom alto e maxNativeZoom basso permettono
+    // di zoommare oltre il limite del tile server senza che la
+    // mappa "sparisca": OSM ingrandisce automaticamente le tile
+    // esistenti (più sfocate ma sempre visibili).
+    // ====================================================
 
     const map = L.map('map', {
       zoomControl: true,
-      attributionControl: true
+      attributionControl: true,
+      maxZoom: 22,           // l'utente può zoomare fino a 22
+      minZoom: 15
     }).setView([46.062492, 13.236069], 19);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 22,
+      maxZoom: 22,           // tetto del livello mostrato
+      maxNativeZoom: 19,     // OSM ha tile fino allo zoom 19
       attribution: '© OpenStreetMap'
     }).addTo(map);
 
     // ====================================================
-    // DESCRIZIONI ESTESE (override dei DESC_BREVE troncati)
-    // Le descrizioni nei GeoJSON sono limitate a 254 caratteri
-    // perché vengono da shapefile; qui ci sono le versioni complete.
-    // La chiave è COD_ID (corrisponde al valore nel GeoJSON).
+    // STATO GLOBALE
+    // ====================================================
+    // descrizioni  -> testi divulgativi degli oggetti (chiave = COD_ID)
+    // mappaOrdine  -> traduce COD_ID catalografico (es. "5", "A")
+    //                 nel numero progressivo mostrato a video (1, 2, 3...)
     // ====================================================
 
-    const descrizioniEstese = {
-      "1": `Una loggia per chiudere il giardino
-
-Quando alla fine dell'Ottocento la famiglia Morpurgo arrivò qui, questa loggia esisteva da quasi un secolo, ma era ancora chiusa da un muro che la separava dal giardino retrostante. Furono proprio i Morpurgo, tra il 1907 e il 1918, a demolire quel muro e a far diventare la loggia il "ponte" tra il palazzo e il nuovo giardino.
-
-L'architetto è probabilmente Luca Andrioli senior, attivo in Friuli nella prima metà del Settecento accanto a Giorgio Massari, uno dei più importanti architetti veneziani dell'epoca.
-
-Alza lo sguardo: le otto statue sulla balaustra sono le Quattro Stagioni. Le scolpì nel 1782 il tagliapietra Mattiussi: un piccolo calendario di pietra sospeso sopra il giardino.`,
-
-      "5": `Una Ninfa al centro dell'acqua
-
-Nelle mitologie antiche le Ninfe erano spiriti femminili dell'acqua, dei boschi, delle montagne. Erano simbolo della natura selvaggia ma anche della grazia. È esattamente quello che cercava di evocare lo scultore gemonese Leonardo Liso (1855-1922) quando, a fine Ottocento, scolpì la prima "Ninfa" da collocare qui, al centro del giardino di Elio Morpurgo.
-
-L'originale era in pietra artificiale ed è andato perso nel corso del Novecento. Quella che vedi oggi è una copia, posizionata durante il restauro del 2006-2007 per restituire all'asse prospettico verso la loggia il suo punto focale storico.`,
-
-      "A": `Aiuole formali — perché formali, oggi
-
-Per quasi tutto il Novecento il giardino Morpurgo aveva un'altra anima. Era un giardino informale, romantico, di gusto inglese: un'aiuola centrale circondata da un vialetto ghiaioso, alberi sparsi in apparente disordine, e al centro una fontana ornata dalla "Ninfa" di Leonardo Liso.
-
-Quello che vedi oggi è il suo esatto contrario. Due grandi aiuoloni geometrici fronteggiano la loggia, bordati da siepi nette, simmetrici, ordinati. È un giardino formale, all'italiana. Cosa è successo nel mezzo?
-
-La trasformazione è del 2006-2007. Il Comune decise di trasformare il giardino — fino ad allora spazio raccolto e nascosto — in un collegamento pedonale tra Piazzetta Belloni, Piazza Duomo e via Savorgnana, dove stava nascendo il Museo di Arte Contemporanea Casa Cavazzini. Per uno spazio attraversato da molti, il disegno formale guida meglio sguardo e passi.
-
-C'è anche un richiamo storico antico: prima del 1906 qui c'erano gli orti della famiglia Sarmede, registrati nel 1704 come impianto a quadranti con vialetto a crociera. Lo schema attuale ne ridisegna idealmente la memoria.
-
-Il prezzo da pagare è stato alto: durante i lavori l'intero impianto vegetale storico fu demolito. Non c'è più nemmeno una pianta di quelle che videro crescere il giardino di Elio Morpurgo.`
-    };
+    let descrizioni = {};
+    let mappaOrdine = {};
 
     // ====================================================
-    // CARICAMENTO PERIMETRO (poligono del giardino)
+    // CARICAMENTO IN PARALLELO DEI 4 DATASET
     // ====================================================
 
-    fetch('data/perimetro.geojson')
-      .then(r => {
-        if (!r.ok) throw new Error('Perimetro non trovato');
-        return r.json();
-      })
-      .then(data => {
-        const layer = L.geoJSON(data, {
-          style: {
-            color: '#3a4a3a',
-            weight: 2,
-            fillColor: '#7a8a6a',
-            fillOpacity: 0.15
-          }
-        }).addTo(map);
-
-        // Zoom automatico per inquadrare il giardino
-        map.fitBounds(layer.getBounds(), { padding: [40, 40] });
+    Promise.all([
+      fetch('data/perimetro.geojson').then(r => r.json()),
+      fetch('data/oggetti.geojson').then(r => r.json()),
+      fetch('data/descrizioni.json').then(r => r.json()),
+      fetch('data/giardino.json').then(r => r.json())
+    ])
+      .then(([perimetro, oggetti, desc, giardino]) => {
+        descrizioni = desc;
+        disegnaPerimetro(perimetro);
+        disegnaOggetti(oggetti);
+        popolaPannelloGiardino(giardino);
       })
       .catch(err => {
-        console.error('Errore caricamento perimetro:', err);
-        mostraErrore('Impossibile caricare il perimetro del giardino. Verifica il file data/perimetro.geojson');
+        console.error('Errore caricamento dati:', err);
+        mostraErrore('Impossibile caricare i dati. Verifica che i file in data/ siano presenti.');
       });
 
     // ====================================================
-    // CARICAMENTO OGGETTI (punti)
+    // DISEGNO PERIMETRO
     // ====================================================
 
-    fetch('data/oggetti.geojson')
-      .then(r => {
-        if (!r.ok) throw new Error('Oggetti non trovati');
-        return r.json();
-      })
-      .then(data => {
-        L.geoJSON(data, {
-          pointToLayer: (feature, latlng) => {
-            const p = feature.properties;
-            const id = p.COD_ID || '?';
+    function disegnaPerimetro(geojson) {
+      const layer = L.geoJSON(geojson, {
+        style: {
+          color: '#3a4a3a',
+          weight: 2,
+          fillColor: '#7a8a6a',
+          fillOpacity: 0.15
+        }
+      }).addTo(map);
 
-            // Distinguo gli ambiti (lettere) dai punti (numeri)
-            const isSpazio = isNaN(parseInt(id));
-            const classe = 'marker-id' + (isSpazio ? ' marker-spazio' : '');
+      map.fitBounds(layer.getBounds(), { padding: [40, 40] });
+    }
 
-            const icona = L.divIcon({
-              className: classe,
-              html: id,
-              iconSize: [32, 32],
-              iconAnchor: [16, 16]
-            });
+    // ====================================================
+    // DISEGNO OGGETTI CON RINUMERAZIONE AUTOMATICA
+    // ====================================================
+    // I COD_ID nel GeoJSON sono quelli catalografici (es. 5, A).
+    // L'utente vede invece una numerazione progressiva pulita:
+    // - gli oggetti puntuali (COD_ID numerico) → 1, 2, 3...
+    // - gli ambiti (COD_ID alfabetico)        → A, B, C... (mantenuti)
+    // Il COD_ID originale resta accessibile solo a te in console
+    // e nel campo "meta" della modale.
+    // ====================================================
 
-            return L.marker(latlng, { icon: icona });
-          },
-          onEachFeature: (feature, layer) => {
-            layer.bindPopup(costruisciPopup(feature.properties), {
-              maxWidth: 280
-            });
-          }
-        }).addTo(map);
-      })
-      .catch(err => {
-        console.error('Errore caricamento oggetti:', err);
-        mostraErrore('Impossibile caricare gli oggetti del giardino. Verifica il file data/oggetti.geojson');
+    function disegnaOggetti(geojson) {
+      // 1) Separo le feature in puntuali (numerici) e ambiti (alfabetici)
+      const puntuali = [];
+      const ambiti = [];
+
+      geojson.features.forEach(f => {
+        const id = f.properties.COD_ID || '?';
+        if (isNaN(parseInt(id))) {
+          ambiti.push(f);
+        } else {
+          puntuali.push(f);
+        }
       });
 
+      // 2) Ordino i puntuali per COD_ID catalografico crescente,
+      //    poi assegno una numerazione progressiva 1, 2, 3...
+      puntuali.sort((a, b) => {
+        return parseInt(a.properties.COD_ID) - parseInt(b.properties.COD_ID);
+      });
+
+      puntuali.forEach((f, i) => {
+        const codCatalografico = f.properties.COD_ID;
+        const numeroVisualizzato = i + 1;
+        mappaOrdine[codCatalografico] = String(numeroVisualizzato);
+      });
+
+      // 3) Gli ambiti mantengono la lettera ICCD come visualizzazione
+      ambiti.forEach(f => {
+        const cod = f.properties.COD_ID;
+        mappaOrdine[cod] = cod;
+      });
+
+      // 4) Disegno tutti i marker
+      L.geoJSON(geojson, {
+        pointToLayer: (feature, latlng) => {
+          const codCatalografico = feature.properties.COD_ID || '?';
+          const etichetta = mappaOrdine[codCatalografico] || codCatalografico;
+          const isSpazio = isNaN(parseInt(etichetta));
+          const classe = 'marker-id' + (isSpazio ? ' marker-spazio' : '');
+
+          const icona = L.divIcon({
+            className: classe,
+            html: etichetta,
+            iconSize: [32, 32],
+            iconAnchor: [16, 16]
+          });
+
+          return L.marker(latlng, { icon: icona });
+        },
+        onEachFeature: (feature, layer) => {
+          layer.bindPopup(costruisciPopup(feature.properties), {
+            maxWidth: 280
+          });
+        }
+      }).addTo(map);
+    }
+
     // ====================================================
-    // COSTRUZIONE POPUP A PARTIRE DAGLI ATTRIBUTI
+    // COSTRUZIONE POPUP DELL'OGGETTO
     // ====================================================
 
     function costruisciPopup(p) {
-      const id = p.COD_ID || '';
-      const nome = p.NOME || 'Senza nome';
+      const codCatalografico = p.COD_ID || '';
+      const etichetta = mappaOrdine[codCatalografico] || codCatalografico;
       const liv1 = p.LIV1 || '';
-      const liv2 = p.LIV2 || '';
-      const liv3 = p.LIV3 || '';
 
-      // Usa descrizione estesa se disponibile, altrimenti DESC_BREVE
-      const desc = descrizioniEstese[id] || p.DESC_BREVE || '';
+      const d = descrizioni[codCatalografico] || {};
+      const titolo = d.titolo || p.NOME || 'Senza nome';
+      const sottotitolo = d.sottotitolo || '';
+      const testoBreve = d.breve || p.DESC_BREVE || '';
+      const haTestoCompleto = d.completa && d.completa.trim().length > 0;
 
-      // Percorso foto: provo prima il valore del campo FOTO con .jpg,
-      // altrimenti uso una convenzione tipo COD_ID.jpg
-      const nomeFoto = (p.FOTO && p.FOTO.indexOf(',') === -1)
-        ? p.FOTO
-        : `${id}.jpg`;
-      const percorsoFoto = `foto/${nomeFoto}`;
+      // Prima immagine della galleria come copertina della scheda
+      const primaFoto = (d.galleria && d.galleria.length > 0)
+        ? `foto/oggetti/${d.galleria[0].file}`
+        : '';
 
-      // Costruisco la gerarchia LIV1 > LIV2 > LIV3
-      const gerarchia = [liv1, liv2, liv3].filter(x => x).join(' › ');
+      const bottoneLeggiTutto = haTestoCompleto
+        ? `<button class="leggi-tutto" onclick="apriModale('${codCatalografico}')">Leggi tutto →</button>`
+        : '';
 
       return `
         <div class="scheda">
-          <img src="${percorsoFoto}" alt="${nome}" onerror="this.style.display='none'" />
+          ${primaFoto ? `<img src="${primaFoto}" alt="${titolo}" onerror="this.style.display='none'" />` : ''}
           <div class="contenuto">
             <div class="tipo">${liv1}</div>
-            <h3>${id}. ${nome}</h3>
-            <div class="liv">${liv2}${liv3 ? ' · ' + liv3 : ''}</div>
-            <p>${desc}</p>
+            <h3>${etichetta}. ${titolo}</h3>
+            ${sottotitolo ? `<div class="sottotitolo">${sottotitolo}</div>` : ''}
+            <p>${testoBreve}</p>
+            ${bottoneLeggiTutto}
           </div>
         </div>
       `;
     }
 
     // ====================================================
-    // GEOLOCALIZZAZIONE DELL'UTENTE
+    // PANNELLO GIARDINO (descrizione complessiva + storia + galleria)
+    // ====================================================
+
+    function popolaPannelloGiardino(g) {
+      const cont = document.getElementById('contenutoPannello');
+
+      let html = '';
+
+      // Sezione: Descrizione
+      if (g.descrizione_completa) {
+        html += sezioneAperta('descrizione', 'Descrizione', g.descrizione_completa);
+      }
+
+      // Sezione: Storia
+      if (g.storia) {
+        html += sezioneAperta('storia', 'Storia', g.storia);
+      }
+
+      // Sezione: Galleria immagini generali
+      if (g.galleria && g.galleria.length > 0) {
+        const griglia = g.galleria.map(item => `
+          <div class="galleria-item" onclick="apriImmagineIntera('foto/giardino/${item.file}', '${(item.didascalia || '').replace(/'/g, "\\'")}')">
+            <img src="foto/giardino/${item.file}" alt="${item.didascalia || ''}" onerror="this.style.display='none'" />
+            <div class="didascalia">${item.didascalia || ''}</div>
+          </div>
+        `).join('');
+
+        html += `
+          <div class="sezione" id="sezione-galleria">
+            <div class="titolo-sezione" onclick="toggleSezione('galleria')">
+              <h3>Galleria</h3>
+              <span class="freccia">▼</span>
+            </div>
+            <div class="contenuto-sezione">
+              <div class="galleria-grid">${griglia}</div>
+            </div>
+          </div>
+        `;
+      }
+
+      cont.innerHTML = html;
+    }
+
+    function sezioneAperta(id, titolo, testo) {
+      return `
+        <div class="sezione" id="sezione-${id}">
+          <div class="titolo-sezione" onclick="toggleSezione('${id}')">
+            <h3>${titolo}</h3>
+            <span class="freccia">▼</span>
+          </div>
+          <div class="contenuto-sezione">${testo}</div>
+        </div>
+      `;
+    }
+
+    function toggleSezione(id) {
+      const s = document.getElementById('sezione-' + id);
+      if (s) s.classList.toggle('aperta');
+    }
+
+    function togglePannelloGiardino() {
+      document.getElementById('pannelloGiardino').classList.toggle('aperto');
+    }
+
+    // ====================================================
+    // MODALE PER LA SCHEDA COMPLETA DELL'OGGETTO
+    // ====================================================
+
+    function apriModale(codCatalografico) {
+      const d = descrizioni[codCatalografico];
+      if (!d) return;
+
+      const etichetta = mappaOrdine[codCatalografico] || codCatalografico;
+      const primaFoto = (d.galleria && d.galleria.length > 0)
+        ? `foto/oggetti/${d.galleria[0].file}`
+        : '';
+
+      document.getElementById('modaleImg').src = primaFoto || '';
+      document.getElementById('modaleImg').style.display = primaFoto ? 'block' : 'none';
+      document.getElementById('modaleMeta').textContent = 'Elemento ' + etichetta;
+      document.getElementById('modaleTitolo').textContent = d.titolo || '';
+      document.getElementById('modaleSottotitolo').textContent = d.sottotitolo || '';
+      document.getElementById('modaleTesto').textContent = d.completa || '';
+
+      // Galleria nella modale: tutte le foto tranne la prima (già in copertina)
+      const galleriaCont = document.getElementById('modaleGalleria');
+      galleriaCont.innerHTML = '';
+      if (d.galleria && d.galleria.length > 1) {
+        d.galleria.slice(1).forEach(item => {
+          const div = document.createElement('div');
+          div.className = 'galleria-item';
+          div.onclick = () => apriImmagineIntera(`foto/oggetti/${item.file}`, item.didascalia || '');
+          div.innerHTML = `
+            <img src="foto/oggetti/${item.file}" alt="${item.didascalia || ''}" onerror="this.style.display='none'" />
+            <div class="didascalia">${item.didascalia || ''}</div>
+          `;
+          galleriaCont.appendChild(div);
+        });
+      }
+
+      document.getElementById('modaleBg').classList.add('aperta');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function chiudiModale() {
+      document.getElementById('modaleBg').classList.remove('aperta');
+      document.body.style.overflow = '';
+    }
+
+    function chiudiModaleSeFuori(evt) {
+      if (evt.target.id === 'modaleBg') chiudiModale();
+    }
+
+    function apriImmagineIntera(src, didascalia) {
+      // Aprire l'immagine in una nuova scheda è il modo più semplice e robusto
+      // di permettere zoom e salvataggio senza complicare la UI
+      window.open(src, '_blank');
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') chiudiModale();
+    });
+
+    // ====================================================
+    // GEOLOCALIZZAZIONE
     // ====================================================
 
     let posizioneMarker = null;
@@ -348,7 +756,6 @@ Il prezzo da pagare è stato alto: durante i lavori l'intero impianto vegetale s
         return;
       }
 
-      // Se sto già tracciando, fermo
       if (watchId !== null) {
         navigator.geolocation.clearWatch(watchId);
         if (posizioneMarker) map.removeLayer(posizioneMarker);
@@ -395,10 +802,6 @@ Il prezzo da pagare è stato alto: durante i lavori l'intero impianto vegetale s
         }
       );
     }
-
-    // ====================================================
-    // UTILITÀ — MOSTRA ERRORE
-    // ====================================================
 
     function mostraErrore(msg) {
       const div = document.createElement('div');
