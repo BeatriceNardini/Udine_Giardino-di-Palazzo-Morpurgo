@@ -1,0 +1,31 @@
+{
+  "_commento": "Informazioni generali sul giardino. Mostrate nel pannello a scomparsa sotto l'intestazione. Modifica liberamente: l'app le ricarica all'apertura della pagina. Le foto generali del giardino vanno nella cartella foto/giardino/ (vedi galleria sotto).",
+
+  "nome": "Giardino di Palazzo Morpurgo",
+  "localita": "Udine",
+
+  "descrizione_breve": "Giardino storico nel cuore di Udine, oggi collegamento pubblico tra Piazza Duomo, via Savorgnana e Piazzetta Belloni. Conserva la loggia settecentesca di Palazzo Valvason Morpurgo e una composizione formale realizzata nel 2006-2007.",
+
+  "descrizione_completa": "Il Giardino di Palazzo Morpurgo si colloca nel cuore civico e religioso del centro storico di Udine, a cavallo tra via Savorgnana (storicamente connotata da residenze nobiliari), Piazzetta Belloni e Piazza Duomo. È connesso al settecentesco Palazzo Valvason Morpurgo — oggi sede delle Gallerie del Progetto — dalla loggia neoclassica attribuita a Luca Andrioli senior, attivo in Friuli nella prima metà del Settecento.\n\nIl giardino è racchiuso sui lati nord-ovest, nord-est e sud-est dalla cancellata in ferro novecentesca, mentre il lato sud-ovest è chiuso dalla loggia. Al centro dell'asse prospettico verso la loggia è collocata una peschiera con una copia della scultura \"Ninfa\" dello scultore gemonese Leonardo Liso (1855-1922).\n\nLa composizione attuale, formale e simmetrica, è il risultato della radicale ristrutturazione del 2006-2007: due grandi aiuoloni geometrici fronteggiano la loggia, bordati da siepi perimetrali. Il giardino non conserva oggi alcun esemplare vegetale storico.",
+
+  "storia": "Sul sedime dell'attuale giardino sorgeva, dal 1704 fino agli anni Trenta dell'Ottocento, un orto a quadranti documentato dal pubblico perito Spinelli. Nel 1851 il terreno fu ceduto a Giuseppe Lorentz ed Eva Brugger che vi costruirono nel 1867 il Teatro Nazionale.\n\nNel 1871 la famiglia Morpurgo acquistò il complesso del palazzo e dopo la demolizione del Teatro Nazionale nel 1906 il sedime fu liberato per la realizzazione del giardino. Tra il 1907 e il 1918 il barone Elio Morpurgo (1858-1944), sindaco di Udine, ideò un giardino informale di gusto inglese: un'aiuola centrale circondata da un vialetto ghiaioso, alberature prevalentemente conifere, e al centro una fontana ornata dalla \"Ninfa\" di Leonardo Liso.\n\nNel 1969 il palazzo e l'annesso giardino furono acquistati dal Comune di Udine con lascito testamentario di Enrico Morpurgo. Tra il 2006 e il 2007 il giardino fu radicalmente ristrutturato e trasformato da spazio raccolto in collegamento pedonale pubblico verso il nuovo Museo di Arte Contemporanea (Casa Cavazzini), con totale demolizione del primigenio impianto vegetale e realizzazione del giardino formale.\n\nNel 2017 il cantiere del nuovo Palazzo Eden invase l'area e ne distrusse gran parte dell'impianto vegetale. Il ripristino — eseguito mantenendo il disegno formale del 2006-2007 — fu completato e il giardino fu riconsegnato alla città il 14 giugno 2021.",
+
+  "galleria": [
+    {
+      "file": "vista-generale.jpg",
+      "didascalia": "Veduta complessiva del giardino dalla loggia (foto attuale)"
+    },
+    {
+      "file": "ingresso-nord.jpg",
+      "didascalia": "Veduta d'assieme dall'ingresso nord (foto attuale)"
+    },
+    {
+      "file": "storica-1918.jpg",
+      "didascalia": "L'impianto novecentesco del giardino Morpurgo, foto aerea del 22 ottobre 1918 (Civici Musei di Udine)"
+    },
+    {
+      "file": "storica-1994.jpg",
+      "didascalia": "Il giardino prima della ristrutturazione, foto di Paolo Bonassi (1994)"
+    }
+  ]
+}
