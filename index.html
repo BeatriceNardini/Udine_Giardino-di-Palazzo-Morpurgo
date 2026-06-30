@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Giardino di Palazzo Morpurgo - Udine</title>
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f4f1ea;
+      color: #2a2a2a;
+    }
+
+    header {
+      background: #3a4a3a;
+      color: white;
+      padding: 12px 16px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+
+    header h1 { font-size: 18px; font-weight: 600; }
+    header p { font-size: 12px; opacity: 0.85; margin-top: 2px; }
+
+    #map {
+      width: 100%;
+      height: calc(100vh - 60px);
+    }
+
+    /* Pop-up della scheda */
+    .leaflet-popup-content-wrapper {
+      border-radius: 8px;
+      padding: 0;
+    }
+
+    .leaflet-popup-content {
+      margin: 0;
+      width: 280px !important;
+    }
+
+    .scheda img {
+      width: 100%;
+      height: 160px;
+      object-fit: cover;
+      border-radius: 8px 8px 0 0;
+      display: block;
+      background: #e0e0e0;
+    }
+
+    .scheda .contenuto { padding: 14px; }
+
+    .scheda h3 {
+      font-size: 16px;
+      color: #3a4a3a;
+      margin-bottom: 6px;
+    }
+
+    .scheda .tipo {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #888;
+      margin-bottom: 6px;
+    }
+
+    .scheda .liv {
+      font-size: 11px;
+      color: #6a7a6a;
+      font-style: italic;
+      margin-bottom: 8px;
+    }
+
+    .scheda p {
+      font-size: 13px;
+      line-height: 1.5;
+      color: #444;
+      white-space: pre-line; /* per rispettare i \n nelle descrizioni */
+    }
+
+    /* Marker numerati / lettera */
+    .marker-id {
+      background: #3a4a3a;
+      color: white;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      border: 3px solid white;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+      font-size: 14px;
+    }
+
+    /* Marker per gli spazi verdi (lettere) - colore diverso */
+    .marker-spazio {
+      background: #6a8a4a;
+    }
+
+    /* Bottone geolocalizzazione */
+    .geo-btn {
+      position: absolute;
+      bottom: 20px;
+      right: 12px;
+      background: white;
+      border: none;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      cursor: pointer;
+      z-index: 1000;
+      font-size: 20px;
+    }
+
+    .geo-btn:active { background: #ddd; }
+
+    /* Pannello informativo iniziale */
+    .info-iniziale {
+      position: absolute;
+      bottom: 80px;
+      left: 12px;
+      right: 12px;
+      background: white;
+      padding: 14px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+      z-index: 999;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .info-iniziale .chiudi {
+      position: absolute;
+      top: 8px;
+      right: 12px;
+      cursor: pointer;
+      font-size: 20px;
+      color: #888;
+    }
+
+    /* Banner errore caricamento */
+    .errore {
+      position: absolute;
+      top: 80px;
+      left: 12px;
+      right: 12px;
+      background: #ffeded;
+      color: #b00;
+      padding: 12px;
+      border-radius: 8px;
+      z-index: 999;
+      font-size: 13px;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>🌿 Giardino di Palazzo Morpurgo</h1>
+    <p>Udine · Tocca i punti per scoprire la storia</p>
+  </header>
+
+  <div id="map"></div>
+
+  <div class="info-iniziale" id="infoIniziale">
+    <span class="chiudi" onclick="document.getElementById('infoIniziale').style.display='none'">×</span>
+    <strong>Benvenuto!</strong><br />
+    Tocca i marker sulla mappa per leggere le schede. I numeri sono elementi puntuali, le lettere sono gli ambiti del giardino. Premi 📍 in basso a destra per vedere la tua posizione.
+  </div>
+
+  <button class="geo-btn" onclick="trovaPosizione()" title="Mostra la mia posizione">📍</button>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <script>
+    // ====================================================
+    // INIZIALIZZAZIONE MAPPA
+    // ====================================================
+
+    const map = L.map('map', {
+      zoomControl: true,
+      attributionControl: true
+    }).setView([46.062492, 13.236069], 19);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 22,
+      attribution: '© OpenStreetMap'
+    }).addTo(map);
+
+    // ====================================================
+    // DESCRIZIONI ESTESE (override dei DESC_BREVE troncati)
+    // Le descrizioni nei GeoJSON sono limitate a 254 caratteri
+    // perché vengono da shapefile; qui ci sono le versioni complete.
+    // La chiave è COD_ID (corrisponde al valore nel GeoJSON).
+    // ====================================================
+
+    const descrizioniEstese = {
+      "1": `Una loggia per chiudere il giardino
+
+Quando alla fine dell'Ottocento la famiglia Morpurgo arrivò qui, questa loggia esisteva da quasi un secolo, ma era ancora chiusa da un muro che la separava dal giardino retrostante. Furono proprio i Morpurgo, tra il 1907 e il 1918, a demolire quel muro e a far diventare la loggia il "ponte" tra il palazzo e il nuovo giardino.
+
+L'architetto è probabilmente Luca Andrioli senior, attivo in Friuli nella prima metà del Settecento accanto a Giorgio Massari, uno dei più importanti architetti veneziani dell'epoca.
+
+Alza lo sguardo: le otto statue sulla balaustra sono le Quattro Stagioni. Le scolpì nel 1782 il tagliapietra Mattiussi: un piccolo calendario di pietra sospeso sopra il giardino.`,
+
+      "5": `Una Ninfa al centro dell'acqua
+
+Nelle mitologie antiche le Ninfe erano spiriti femminili dell'acqua, dei boschi, delle montagne. Erano simbolo della natura selvaggia ma anche della grazia. È esattamente quello che cercava di evocare lo scultore gemonese Leonardo Liso (1855-1922) quando, a fine Ottocento, scolpì la prima "Ninfa" da collocare qui, al centro del giardino di Elio Morpurgo.
+
+L'originale era in pietra artificiale ed è andato perso nel corso del Novecento. Quella che vedi oggi è una copia, posizionata durante il restauro del 2006-2007 per restituire all'asse prospettico verso la loggia il suo punto focale storico.`,
+
+      "A": `Aiuole formali — perché formali, oggi
+
+Per quasi tutto il Novecento il giardino Morpurgo aveva un'altra anima. Era un giardino informale, romantico, di gusto inglese: un'aiuola centrale circondata da un vialetto ghiaioso, alberi sparsi in apparente disordine, e al centro una fontana ornata dalla "Ninfa" di Leonardo Liso.
+
+Quello che vedi oggi è il suo esatto contrario. Due grandi aiuoloni geometrici fronteggiano la loggia, bordati da siepi nette, simmetrici, ordinati. È un giardino formale, all'italiana. Cosa è successo nel mezzo?
+
+La trasformazione è del 2006-2007. Il Comune decise di trasformare il giardino — fino ad allora spazio raccolto e nascosto — in un collegamento pedonale tra Piazzetta Belloni, Piazza Duomo e via Savorgnana, dove stava nascendo il Museo di Arte Contemporanea Casa Cavazzini. Per uno spazio attraversato da molti, il disegno formale guida meglio sguardo e passi.
+
+C'è anche un richiamo storico antico: prima del 1906 qui c'erano gli orti della famiglia Sarmede, registrati nel 1704 come impianto a quadranti con vialetto a crociera. Lo schema attuale ne ridisegna idealmente la memoria.
+
+Il prezzo da pagare è stato alto: durante i lavori l'intero impianto vegetale storico fu demolito. Non c'è più nemmeno una pianta di quelle che videro crescere il giardino di Elio Morpurgo.`
+    };
+
+    // ====================================================
+    // CARICAMENTO PERIMETRO (poligono del giardino)
+    // ====================================================
+
+    fetch('data/perimetro.geojson')
+      .then(r => {
+        if (!r.ok) throw new Error('Perimetro non trovato');
+        return r.json();
+      })
+      .then(data => {
+        const layer = L.geoJSON(data, {
+          style: {
+            color: '#3a4a3a',
+            weight: 2,
+            fillColor: '#7a8a6a',
+            fillOpacity: 0.15
+          }
+        }).addTo(map);
+
+        // Zoom automatico per inquadrare il giardino
+        map.fitBounds(layer.getBounds(), { padding: [40, 40] });
+      })
+      .catch(err => {
+        console.error('Errore caricamento perimetro:', err);
+        mostraErrore('Impossibile caricare il perimetro del giardino. Verifica il file data/perimetro.geojson');
+      });
+
+    // ====================================================
+    // CARICAMENTO OGGETTI (punti)
+    // ====================================================
+
+    fetch('data/oggetti.geojson')
+      .then(r => {
+        if (!r.ok) throw new Error('Oggetti non trovati');
+        return r.json();
+      })
+      .then(data => {
+        L.geoJSON(data, {
+          pointToLayer: (feature, latlng) => {
+            const p = feature.properties;
+            const id = p.COD_ID || '?';
+
+            // Distinguo gli ambiti (lettere) dai punti (numeri)
+            const isSpazio = isNaN(parseInt(id));
+            const classe = 'marker-id' + (isSpazio ? ' marker-spazio' : '');
+
+            const icona = L.divIcon({
+              className: classe,
+              html: id,
+              iconSize: [32, 32],
+              iconAnchor: [16, 16]
+            });
+
+            return L.marker(latlng, { icon: icona });
+          },
+          onEachFeature: (feature, layer) => {
+            layer.bindPopup(costruisciPopup(feature.properties), {
+              maxWidth: 280
+            });
+          }
+        }).addTo(map);
+      })
+      .catch(err => {
+        console.error('Errore caricamento oggetti:', err);
+        mostraErrore('Impossibile caricare gli oggetti del giardino. Verifica il file data/oggetti.geojson');
+      });
+
+    // ====================================================
+    // COSTRUZIONE POPUP A PARTIRE DAGLI ATTRIBUTI
+    // ====================================================
+
+    function costruisciPopup(p) {
+      const id = p.COD_ID || '';
+      const nome = p.NOME || 'Senza nome';
+      const liv1 = p.LIV1 || '';
+      const liv2 = p.LIV2 || '';
+      const liv3 = p.LIV3 || '';
+
+      // Usa descrizione estesa se disponibile, altrimenti DESC_BREVE
+      const desc = descrizioniEstese[id] || p.DESC_BREVE || '';
+
+      // Percorso foto: provo prima il valore del campo FOTO con .jpg,
+      // altrimenti uso una convenzione tipo COD_ID.jpg
+      const nomeFoto = (p.FOTO && p.FOTO.indexOf(',') === -1)
+        ? p.FOTO
+        : `${id}.jpg`;
+      const percorsoFoto = `foto/${nomeFoto}`;
+
+      // Costruisco la gerarchia LIV1 > LIV2 > LIV3
+      const gerarchia = [liv1, liv2, liv3].filter(x => x).join(' › ');
+
+      return `
+        <div class="scheda">
+          <img src="${percorsoFoto}" alt="${nome}" onerror="this.style.display='none'" />
+          <div class="contenuto">
+            <div class="tipo">${liv1}</div>
+            <h3>${id}. ${nome}</h3>
+            <div class="liv">${liv2}${liv3 ? ' · ' + liv3 : ''}</div>
+            <p>${desc}</p>
+          </div>
+        </div>
+      `;
+    }
+
+    // ====================================================
+    // GEOLOCALIZZAZIONE DELL'UTENTE
+    // ====================================================
+
+    let posizioneMarker = null;
+    let cerchioPrecisione = null;
+    let watchId = null;
+
+    function trovaPosizione() {
+      if (!navigator.geolocation) {
+        alert("Il tuo browser non supporta la geolocalizzazione.");
+        return;
+      }
+
+      // Se sto già tracciando, fermo
+      if (watchId !== null) {
+        navigator.geolocation.clearWatch(watchId);
+        if (posizioneMarker) map.removeLayer(posizioneMarker);
+        if (cerchioPrecisione) map.removeLayer(cerchioPrecisione);
+        watchId = null;
+        return;
+      }
+
+      watchId = navigator.geolocation.watchPosition(
+        (pos) => {
+          const lat = pos.coords.latitude;
+          const lng = pos.coords.longitude;
+          const precisione = pos.coords.accuracy;
+
+          if (posizioneMarker) map.removeLayer(posizioneMarker);
+          if (cerchioPrecisione) map.removeLayer(cerchioPrecisione);
+
+          posizioneMarker = L.circleMarker([lat, lng], {
+            radius: 8,
+            fillColor: '#2196f3',
+            color: 'white',
+            weight: 2,
+            fillOpacity: 1
+          }).addTo(map);
+
+          cerchioPrecisione = L.circle([lat, lng], {
+            radius: precisione,
+            color: '#2196f3',
+            fillColor: '#2196f3',
+            fillOpacity: 0.1,
+            weight: 1
+          }).addTo(map);
+
+          map.setView([lat, lng], 20);
+        },
+        (err) => {
+          alert("Impossibile ottenere la posizione: " + err.message);
+          watchId = null;
+        },
+        {
+          enableHighAccuracy: true,
+          maximumAge: 5000,
+          timeout: 10000
+        }
+      );
+    }
+
+    // ====================================================
+    // UTILITÀ — MOSTRA ERRORE
+    // ====================================================
+
+    function mostraErrore(msg) {
+      const div = document.createElement('div');
+      div.className = 'errore';
+      div.textContent = msg;
+      document.body.appendChild(div);
+      setTimeout(() => div.remove(), 8000);
+    }
+  </script>
+</body>
+</html>

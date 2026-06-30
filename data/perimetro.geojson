@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "Udine_Giardino di Palazzo Morpurgo",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "id": null, "PROV": "UD", "COMUNE": "UDINE", "TIPO": "Giardino", "NOME": "Giardino di Palazzo Morpurgo", "SCH_ERPAC": "https://patrimonioculturale.regione.fvg.it/parchi-e-giardini/?s_id=749682", "FOGLIO": "39", "SCH_PPR": null, "SCH_BENICU": null, "PROVVED": null, "INDIRIZZO": "Piazza Del Duomo", "AUTORE": null, "STATOSCHED": null, "NUM": null, "MAPPALE": "89" }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ 13.235897073505136, 46.06246562710885 ], [ 13.235924514648081, 46.062513351344393 ], [ 13.236055229218328, 46.062606093387828 ], [ 13.236111218339817, 46.062596877258301 ], [ 13.23612373691647, 46.062588540895575 ], [ 13.236300107504441, 46.062436954945795 ], [ 13.236246515690505, 46.062405886369199 ], [ 13.236285308011109, 46.062377019222801 ], [ 13.236192351337062, 46.062322855835909 ], [ 13.235897073505136, 46.06246562710885 ] ] ] ] } }
+]
+}
